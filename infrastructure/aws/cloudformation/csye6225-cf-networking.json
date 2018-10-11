@@ -10,7 +10,7 @@
 		"EnableDnsSupport" : "true",
  		"EnableDnsHostnames" : "true",
       		"InstanceTenancy" : "default",
-		"Tags" : [ {"Key" : "Name", "Value" : "kpvpc" } ]
+		"Tags" : [ {"Key" : "Name", "Value" : "Komal" } ]
 		}
             },
     "PublicSubnet1" : {
@@ -18,9 +18,9 @@
 	    "Properties" : {
  	        "AvailabilityZone" : "us-east-1a",
 	        "VpcId" : { "Ref" : "VPC" },
-	        "CidrBlock" : "10.0.1.0/24",
+	        "CidrBlock" : "10.0.0.0/24",
 		"MapPublicIpOnLaunch" : true,
-	        "Tags" : [ {"Key" : "Name", "Value" : "pb1" } ]
+	        "Tags" : [ {"Key" : "Name", "Value" : "pub1" } ]
 	      }
 	    },
     "PublicSubnet2" : {
@@ -28,9 +28,9 @@
 	    "Properties" : {
 		"AvailabilityZone" : "us-east-1b",
 	        "VpcId" : { "Ref" : "VPC" },
-	        "CidrBlock" : "10.0.2.0/24",
+	        "CidrBlock" : "10.0.1.0/24",
 		"MapPublicIpOnLaunch" : true,
-	        "Tags" : [ {"Key" : "Name", "Value" : "pb2" } ]
+	        "Tags" : [ {"Key" : "Name", "Value" : "pub2" } ]
 	      }
 	    },	
 		
@@ -39,9 +39,9 @@
 	    "Properties" : {
 		"AvailabilityZone" : "us-east-1c",
 	        "VpcId" : { "Ref" : "VPC" },
-	        "CidrBlock" : "10.0.3.0/24",
+	        "CidrBlock" : "10.0.2.0/24",
 		"MapPublicIpOnLaunch" : true,
-	        "Tags" : [ {"Key" : "Name", "Value" : "pb3" } ]
+	        "Tags" : [ {"Key" : "Name", "Value" : "pub3" } ]
 	      }
 	    },
 
@@ -50,9 +50,9 @@
 	    "Properties" : {
 		"AvailabilityZone" : "us-east-1a",
 	        "VpcId" : { "Ref" : "VPC" },
-	        "CidrBlock" : "10.0.4.0/24",
+	        "CidrBlock" : "10.0.3.0/24",
 		"MapPublicIpOnLaunch" : false,
-	        "Tags" : [ {"Key" : "Name", "Value" : "pv1" } ]
+	        "Tags" : [ {"Key" : "Name", "Value" : "pri1" } ]
 	      }
 	    },
 	
@@ -61,9 +61,9 @@
 	    "Properties" : {
 		"AvailabilityZone" : "us-east-1b",
 	        "VpcId" : { "Ref" : "VPC" },
-	        "CidrBlock" : "10.0.5.0/24",
+	        "CidrBlock" : "10.0.4.0/24",
 		"MapPublicIpOnLaunch" : false,
-	        "Tags" : [ {"Key" : "Name", "Value" : "pv2" } ]
+	        "Tags" : [ {"Key" : "Name", "Value" : "pri2" } ]
 	      }
 	    },
 		
@@ -72,16 +72,16 @@
 	    "Properties" : {
 		"AvailabilityZone" : "us-east-1c",
 	        "VpcId" : { "Ref" : "VPC" },
-	        "CidrBlock" : "10.0.6.0/24",
+	        "CidrBlock" : "10.0.5.0/24",
 		"MapPublicIpOnLaunch" : false,
-	        "Tags" : [ {"Key" : "Name", "Value" : "pv3" } ]
+	        "Tags" : [ {"Key" : "Name", "Value" : "pri3" } ]
 	      }
 	    },
 
     "InternetGateway" : {
 	      "Type" : "AWS::EC2::InternetGateway",
 	      "Properties" : {
-	        "Tags" : [ {"Key" : "Name", "Value" : "Kiran InternetGateway" } ]
+	        "Tags" : [ {"Key" : "Name", "Value" : "komalVPCInternetGateway" } ]
 	      }
 	    },
 		
@@ -97,7 +97,7 @@
 	      "Type" : "AWS::EC2::RouteTable",
 	      "Properties" : {
 	        "VpcId" : {"Ref" : "VPC"},
-	        "Tags" : [ {"Key" : "Name", "Value" : "Kiran PublicRouteTable" } ]
+	        "Tags" : [ {"Key" : "Name", "Value" : "komalVPCPublicRouteTable" } ]
 	      }
 	    },
 		
