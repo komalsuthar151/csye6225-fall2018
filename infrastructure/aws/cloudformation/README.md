@@ -8,8 +8,4 @@ To terminate the stack enter ./csye6225-aws-cf-terminate-stack.sh stack_name
 
 Run cicd stack and then application stack
 
-Run Network stack, cicd stack and then autoscaling stackkk
-
-=======
-Run Network stack, cicd stack and then autoscaling stackkk
->>>>>>> fbab19908ed449b547f3c21b7829734fbfcf5d71
+Run Network stack, cicd stack and then autoscaling stackk
