@@ -144,7 +144,7 @@
                         "groupadd tomcat",
                         "useradd -M -s /bin/nologin -g tomcat -d /opt/tomcat tomcat",
                         "cd /tmp",
-                        "wget http://apache.mirrors.pair.com/tomcat/tomcat-8/v8.5.34/bin/apache-tomcat-8.5.34.tar.gz",
+                        "wget http://ftp.naz.com/apache/tomcat/tomcat-8/v8.5.35/bin/apache-tomcat-8.5.35.tar.gz",
                         "mkdir /opt/tomcat",
                         "sudo tar xvf apache-tomcat-8*tar.gz -C /opt/tomcat --strip-components=1",
                         "cd /opt/tomcat",
@@ -284,6 +284,7 @@
             "IamInstanceProfile":{
                "Ref":"instanceProfileName"
             }
+	
          }
       },
       "ourWebServerGroup":{
@@ -436,38 +437,7 @@
             ]
          }
       },
-      
-	  "EC2SecurityGroup" : {
-    "Type" : "AWS::EC2::SecurityGroup",
-    "Properties" : {
-      "GroupName" : "csye6225-webapp",
-      "GroupDescription" : "Open http access ports 22, 80 & 443",
-      "VpcId": {"Ref":"VpcId"},
-      "SecurityGroupIngress" : [ {
-        "IpProtocol" : "tcp",
-        "FromPort" : "22",
-        "ToPort" : "22",
-      "CidrIp" : "0.0.0.0/0" },
-      {
-        "IpProtocol" : "tcp",
-        "FromPort" : "80",
-        "ToPort" : "80",
-      "CidrIp" : "0.0.0.0/0" },
-      {
-        "IpProtocol" : "tcp",
-        "FromPort" : "443",
-        "ToPort" : "443",
-        "CidrIp" : "0.0.0.0/0"
-      },{
-        "IpProtocol": "tcp",
-        "FromPort": "8080",
-        "ToPort": "8080",
-        "CidrIp": "0.0.0.0/0"
-      } ],
-      
-      "Tags" : [ {"Key" : "Name", "Value" : "EC2SecurityGroup" } ]
-    }
-  },
+     
       "ourDynamoTable":{
          "Type":"AWS::DynamoDB::Table",
          "Properties":{
@@ -713,37 +683,7 @@
       
       "Tags" : [ {"Key" : "Name", "Value" : "EC2SecurityGroup" } ]
     }
-  },
-      "ourCodeDeploymentGroup":{
-         "Type":"AWS::CodeDeploy::DeploymentGroup",
-         "Properties":{
-            "ApplicationName":{
-               "Ref":"CodeDeployApplicationName"
-            },
-            "DeploymentGroupName":{
-               "Ref":"CodeDeployApplicationName"
-            },
-            "Ec2TagFilters":[
-               {
-                  "Key":"Name",
-                  "Value":"csye6225-ec2",
-                  "Type":"KEY_AND_VALUE"
-               }
-            ],
-            "AutoScalingGroups":[
-               {
-                  "Ref":"ourWebServerGroup"
-               }
-            ],
-            "ServiceRoleArn":{
-               "Ref":"CodeDeployServiceRoleArn"
-            },
-            "DeploymentStyle":{
-               "DeploymentType":"IN_PLACE",
-               "DeploymentOption":"WITHOUT_TRAFFIC_CONTROL"
-            }
-         }
-      }
+  }	
    },
    "Outputs":{
       "URL":{
