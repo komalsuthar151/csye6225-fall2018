@@ -170,8 +170,8 @@
 					"PropagateAtLaunch": true
 				}],
 				"VPCZoneIdentifier": [
-					"subnet-0f04e26062ff36a1b",
-					"subnet-0de75d0722934ea4c"
+					"subnet-09df4601c94d38d74",
+					"subnet-05dada3128e304843"
 				],
 				"LaunchConfigurationName": {
                                          "Ref": "AsgLaunchConfig"
@@ -263,15 +263,15 @@
                                         "Name": "ELB",
 					"Scheme": "internet-facing",
 					"Subnets": [
-						"subnet-0f04e26062ff36a1b",
-						"subnet-0de75d0722934ea4c"
+					"subnet-09df4601c94d38d74",
+					"subnet-05dada3128e304843"
 					],
 					"LoadBalancerAttributes": [{
 						"Key": "idle_timeout.timeout_seconds",
 						"Value": "60"
 					}],
 					"SecurityGroups": [{
-						"Ref": "WebServerSecurityGroup"
+						"Ref": "ourLoadBalancerSecurityGroup"
 					}],
 					"Tags": [{
 						"Key": "Name",
@@ -279,6 +279,34 @@
 					}]
 				}
 			},
+			"ourLoadBalancerSecurityGroup":{
+         "Type":"AWS::EC2::SecurityGroup",
+         "Properties":{
+            "GroupDescription":"Load Balancer Security Group",
+            "GroupName":"LoadBalancerGroupSecurity",
+            "VpcId":{
+               "Ref":"VpcId"
+            },
+            "SecurityGroupIngress":[
+               {
+                  "IpProtocol":"tcp",
+                  "FromPort":"443",
+                  "ToPort":"443",
+                  "CidrIp":"0.0.0.0/0"
+               }
+            ],
+            "SecurityGroupEgress":[
+               {
+                  "IpProtocol":"tcp",
+                  "FromPort":"8080",
+                  "ToPort":"8080",
+                  "DestinationSecurityGroupId":{
+                     "Ref":"WebServerSecurityGroup"
+                  }
+               }
+            ]
+         }
+      },
 			"Listener": {
 				"Type": "AWS::ElasticLoadBalancingV2::Listener",
 				"Properties": {

@@ -2,10 +2,10 @@
 Team Member Details:
 1. Kiran Panchal panchal.k@husky.neu.edu
 2. Komal Suthar suthar.k@husky.neu.edu
-3. Hemant Kamathhh kamath.h@husky.neu.edu
+3. Hemant Kamath kamath.h@husky.neu.edu
 4. Aakash Jethva jethva.a@husky.neu.edu
 
-WebDev Application:
+WebDev Applicationn:
 Technologies : Sts eclipse, IntelliJ, Postman, Sql Workbench, Maria DB,DynamoDBB
 
 Using JPA annotations first created a User Pojo 
