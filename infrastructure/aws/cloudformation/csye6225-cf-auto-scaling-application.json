@@ -56,8 +56,7 @@
                 },
 		"hzid" :{
 			"Type":"String"
-                },
-		"CodeDeployServiceRole":{"Type":"String"}
+                }
 	},
 
 	"Resources": {
@@ -171,8 +170,8 @@
 					"PropagateAtLaunch": true
 				}],
 				"VPCZoneIdentifier": [
-					"subnet-09df4601c94d38d74",
-					"subnet-05dada3128e304843"
+					"subnet-0a8947789d4bf2ff9",
+					"subnet-012a566fb0f401718"
 				],
 				"LaunchConfigurationName": {
                                          "Ref": "AsgLaunchConfig"
@@ -183,14 +182,15 @@
 				"Cooldown": "60",
 				"TargetGroupARNs": [{
 					"Ref": "myTargetGroup"
+				}],
+				"MetricsCollection": [{
+					"Granularity": "1Minute",
+					"Metrics": [
+						"GroupMinSize",
+						"GroupMaxSize"
+					]
 				}]
-			},
-"DependsOn":[
-            "Listener",
-            "AsgLaunchConfig"
-         ]
-			
-},
+			}},
 			"WebServerScaleUpPolicy": {
 				"Type": "AWS::AutoScaling::ScalingPolicy",
 				"Properties": {
@@ -262,52 +262,23 @@
 				"Properties": {
                                         "Name": "ELB",
 					"Scheme": "internet-facing",
-					"IpAddressType":"ipv4",
-					"Type":"application",
 					"Subnets": [
-					"subnet-09df4601c94d38d74",
-					"subnet-05dada3128e304843"
+						"subnet-0a8947789d4bf2ff9",
+						"subnet-012a566fb0f401718"
 					],
-					
-					"SecurityGroups":[
-              				 {
-                  			"Fn::GetAtt":[
-					     "ourLoadBalancerSecurityGroup",
-					     "GroupId"
-					  ]
-				       }
-				    ]
-					
+					"LoadBalancerAttributes": [{
+						"Key": "idle_timeout.timeout_seconds",
+						"Value": "60"
+					}],
+					"SecurityGroups": [{
+						"Ref": "WebServerSecurityGroup"
+					}],
+					"Tags": [{
+						"Key": "Name",
+						"Value": "CSYE6225"
+					}]
 				}
 			},
-			"ourLoadBalancerSecurityGroup":{
-         "Type":"AWS::EC2::SecurityGroup",
-         "Properties":{
-            "GroupDescription":"Load Balancer Security Group",
-            "GroupName":"LoadBalancerGroupSecurity",
-            "VpcId":{
-               "Ref":"VpcId"
-            },
-            "SecurityGroupIngress":[
-               {
-                  "IpProtocol":"tcp",
-                  "FromPort":"443",
-                  "ToPort":"443",
-                  "CidrIp":"0.0.0.0/0"
-               }
-            ],
-            "SecurityGroupEgress":[
-               {
-                  "IpProtocol":"tcp",
-                  "FromPort":"8080",
-                  "ToPort":"8080",
-                  "DestinationSecurityGroupId":{
-                     "Ref":"WebServerSecurityGroup"
-                  }
-               }
-            ]
-         }
-      },
 			"Listener": {
 				"Type": "AWS::ElasticLoadBalancingV2::Listener",
 				"Properties": {
@@ -495,14 +466,28 @@
 					"DBName": "csye6225"
 				}
 			},
-                     
+                       "CodeDeployServiceRole" : {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "ManagedPolicyArns" : ["arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"],
+              "AssumeRolePolicyDocument": {
+                "Version" : "2012-10-17",
+                "Statement": [ {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": [ "ec2.amazonaws.com", "codedeploy.amazonaws.com"]
+                  },
+                "Action": [ "sts:AssumeRole" ]
+                } ]
+              },
+          "RoleName": "CodeDeployServiceRole"
+          }
+        },
     "CodeDeployApplication": {
       "Type": "AWS::CodeDeploy::Application",
       "Properties": {
-        "ApplicationName" : {"Ref" : "appname"},
-	"ComputePlatform":"Server"
+        "ApplicationName" : {"Ref" : "appname"}
       }
-	
     },
      "CodeDeployDeploymentGroup": {
       "Type": "AWS::CodeDeploy::DeploymentGroup",
@@ -511,6 +496,13 @@
           "DeploymentStyle": {
           "DeploymentType": "IN_PLACE",
           "DeploymentOption": "WITHOUT_TRAFFIC_CONTROL"
+        },
+        "LoadBalancerInfo": {
+          "ElbInfoList": [
+            {
+              "Name": "ELB"
+            }
+          ]
         },
          "AutoScalingGroups": [
           {
@@ -522,28 +514,9 @@
           "Value" : "CSYE6225",
           "Type" : "KEY_AND_VALUE"
         }],
-        "ServiceRoleArn" : {"Ref":"CodeDeployServiceRole"},
+        "ServiceRoleArn" : {"Fn::GetAtt" : ["CodeDeployServiceRole", "Arn"]},
         "DeploymentGroupName" : {"Ref" : "depname"}
       }
     }
-  },
-  "Outputs":{
-      "URL":{
-         "Description":"The URL of the website",
-         "Value":{
-            "Fn::Join":[
-               "",
-               [
-                  "http://",
-                  {
-                     "Fn::GetAtt":[
-                        "ElasticLoadBalancer",
-                        "DNSName"
-                     ]
-                  }
-               ]
-            ]
-         }
-      }
-   }
+  }
 }

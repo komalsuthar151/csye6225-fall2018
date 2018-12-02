@@ -10,10 +10,7 @@
   "accid" : {
     "Description" : "Account Id",
     "Type" : "String"
-},
-      "CodeDeployEC2ServiceRoleName":{
-         "Type":"String"
-      }
+}
   },
   "Resources" : {
     "EC2ToS3BucketInstanceProfile" : {
@@ -28,24 +25,6 @@
         "InstanceProfileName":"EC2ToS3BucketInstanceProfile"
       }
     },
-
-  "CodeDeployServiceRole" : {
-            "Type": "AWS::IAM::Role",
-            "Properties": {
-              "ManagedPolicyArns" : ["arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"],
-              "AssumeRolePolicyDocument": {
-                "Version" : "2012-10-17",
-                "Statement": [ {
-                "Effect": "Allow",
-                "Principal": {
-                  "Service": [ "ec2.amazonaws.com", "codedeploy.amazonaws.com"]
-                  },
-                "Action": [ "sts:AssumeRole" ]
-                } ]
-              },
-          "RoleName": "CodeDeployServiceRole"
-          }
-        },
     "EC2ToS3BucketPolicy" : {
       "Type" : "AWS::IAM::ManagedPolicy",
       "Properties" : {
@@ -74,55 +53,6 @@
         ]
       }
     },
-
-
-"ourCodeDeployEC2ServiceRole":{
-         "Type":"AWS::IAM::Role",
-         "Properties":{
-            "AssumeRolePolicyDocument":{
-               "Version":"2012-10-17",
-               "Statement":[
-                  {
-                     "Action":"sts:AssumeRole",
-                     "Principal":{
-                        "Service":"ec2.amazonaws.com"
-                     },
-                     "Effect":"Allow"
-                  }
-               ]
-            },
-            "RoleName":{
-               "Ref":"CodeDeployEC2ServiceRoleName"
-            },
-            "Policies":[
-               {
-                  "PolicyName":"AWSCodeDeployRolenew",
-                  "PolicyDocument":{
-                     "Version":"2012-10-17",
-                     "Statement":[
-                        {
-                           "Effect":"Allow",
-                           "Action":[
-                              "ec2:DescribeInstances",
-                              "ec2:DescribeInstanceStatus",
-                              "ec2:TerminateInstances",
-                              "tag:GetTags",
-                              "tag:GetResources",
-                              "sns:Publish",
-                              "cloudwatch:DescribeAlarms",
-                              "cloudwatch:PutMetricAlarm",
-                              "cloudwatch:PutMetricData"
-                           ],
-                           "Resource":[
-                              "*"
-                           ]
-                        }
-                     ]
-                  }
-               }
-            ]
-         }
-      },
     "EC2ToS3BucketRole" : {
       "Type" : "AWS::IAM::Role",
       "Properties" : {

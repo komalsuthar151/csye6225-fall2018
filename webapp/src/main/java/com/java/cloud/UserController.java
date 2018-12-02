@@ -133,9 +133,10 @@ public class UserController {
             newtransaction.setMerchant(transaction.getMerchant());
             newtransaction.setUser(user);
             trsnRepo.save(newtransaction);
-
+		
             j.addProperty("message", "Transaction added successfully");
-            return j.toString();
+	j.addProperty("id",newtransaction.getId());            
+	return j.toString();
 
 
         } catch (Exception e){

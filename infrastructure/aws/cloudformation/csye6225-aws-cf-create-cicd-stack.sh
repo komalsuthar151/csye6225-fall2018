@@ -10,9 +10,9 @@ echo "S3 Bucket: $s3domain"
 
 accid=$(aws sts get-caller-identity --output text --query 'Account')
 echo "AccountId: $accid"
-CODEDEPLOYEC2SERVICEROLENAME="CodeDeployEC2ServiceRole"
 
-createOutput=$(aws cloudformation create-stack --stack-name $stackname --capabilities CAPABILITY_NAMED_IAM --template-body file://csye6225-cf-ci-cd.json --parameters ParameterKey=s3domain,ParameterValue=$s3domain ParameterKey=accid,ParameterValue=$accid ParameterKey=CodeDeployEC2ServiceRoleName,ParameterValue=$CODEDEPLOYEC2SERVICEROLENAME)
+
+createOutput=$(aws cloudformation create-stack --stack-name $stackname --capabilities CAPABILITY_NAMED_IAM --template-body file://csye6225-cf-ci-cd.json --parameters ParameterKey=s3domain,ParameterValue=$s3domain ParameterKey=accid,ParameterValue=$accid)
 
 
 if [ $? -eq 0 ]; then
