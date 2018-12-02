@@ -4,16 +4,8 @@ Navigate to the infrastructure/aws/cloudformation folder in the terminal
 Enter ./csye6225-aws-cf-create-stack.sh stack_name
 Navigate to the AWS Console and verify that a VPC, Internet Gateway and a Route Table with the IGW attached to it
 To terminate the stack enter ./csye6225-aws-cf-terminate-stack.sh stack_name
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-Run cicd stack and then application stack
-
-Run Network stack, cicd stack and then autoscaling stackk
-=======
 
 Run cicd stack and then application stack
 
 Run Network stack, cicd stack and then autoscaling stackkk
 
->>>>>>> 25247a0766ca5752f58f45bd16e2ad8e43b5eb8f
