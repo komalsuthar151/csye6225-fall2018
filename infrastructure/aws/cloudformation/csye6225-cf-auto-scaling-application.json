@@ -38,9 +38,25 @@
 			"Description": "s3 attachment bucket name",
 			"Type": "String"
 		},
-		"HostedZoneName" :{
-			"Type":"String"}
-
+                "hostedzone":{  
+                      "Description":"Domain name",
+                      "Type":"String"
+                },
+                "certARN":{  
+                "Description":" SSL certificate ARN",
+                "Type":"String"
+                },
+                "appname" : {
+                "Description" : "Application Name",
+                "Type" : "String"
+                },
+                "depname" : {
+                "Description" : "Deployment Group Name",
+                "Type" : "String"
+                },
+		"hzid" :{
+			"Type":"String"
+                }
 	},
 
 	"Resources": {
@@ -66,7 +82,7 @@
 								"groupadd tomcat",
 								"useradd -M -s /bin/nologin -g tomcat -d /opt/tomcat tomcat",
 								"cd /tmp",
-								"wget http://apache.mirrors.pair.com/tomcat/tomcat-8/v8.5.34/bin/apache-tomcat-8.5.34.tar.gz",
+								"wget http://ftp.naz.com/apache/tomcat/tomcat-8/v8.5.35/bin/apache-tomcat-8.5.35.tar.gz",
 								"mkdir /opt/tomcat",
 								"tar xvf apache-tomcat-8*tar.gz -C /opt/tomcat --strip-components=1",
 								"cd /opt/tomcat",
@@ -149,17 +165,17 @@
 			"Type": "AWS::AutoScaling::AutoScalingGroup",
 			"Properties": {
 				"Tags": [{
-					"Key": "NAME",
+					"Key": "Name",
 					"Value": "CSYE6225",
 					"PropagateAtLaunch": true
 				}],
 				"VPCZoneIdentifier": [
-					"subnet-025dbcee9c46b6b02",
-					"subnet-0ad2fbf3ff23add25",
-					"subnet-08fa21c9ec7094cce"
+						"subnet-04857dba111d6f035",
+						"subnet-0c31ff986de417877"
+
 				],
 				"LaunchConfigurationName": {
-					"Ref": "AsgLaunchConfig"
+                                         "Ref": "AsgLaunchConfig"
 				},
 				"MinSize": "3",
 				"MaxSize": "10",
@@ -207,7 +223,7 @@
 					"Statistic": "Average",
 					"Period": "300",
 					"EvaluationPeriods": "2",
-					"Threshold": "90",
+					"Threshold": "5",
 					"AlarmActions": [{
 						"Ref": "WebServerScaleUpPolicy"
 					}],
@@ -229,7 +245,7 @@
 					"Statistic": "Average",
 					"Period": "300",
 					"EvaluationPeriods": "2",
-					"Threshold": "70",
+					"Threshold": "3",
 					"AlarmActions": [{
 						"Ref": "WebServerScaleDownPolicy"
 					}],
@@ -243,23 +259,23 @@
 				}
 			},
 			"ElasticLoadBalancer": {
-				"Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+				"Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
 				"Properties": {
+                                        "Name": "ELB",
 					"Scheme": "internet-facing",
 					"Subnets": [
-						"subnet-025dbcee9c46b6b02",
-						"subnet-0ad2fbf3ff23add25",
-						"subnet-08fa21c9ec7094cce"
+						"subnet-04857dba111d6f035",
+						"subnet-0c31ff986de417877"
 					],
 					"LoadBalancerAttributes": [{
 						"Key": "idle_timeout.timeout_seconds",
 						"Value": "60"
 					}],
 					"SecurityGroups": [{
-						"Ref": "LoadBalancerSecurityGroup"
+						"Ref": "WebServerSecurityGroup"
 					}],
 					"Tags": [{
-						"Key": "NAME",
+						"Key": "Name",
 						"Value": "CSYE6225"
 					}]
 				}
@@ -268,7 +284,10 @@
 				"Type": "AWS::ElasticLoadBalancingV2::Listener",
 				"Properties": {
 					"Certificates": [{
-						"CertificateArn":"csye6225-fall2018-suthark.me"
+
+						"CertificateArn":{
+                                                 "Ref":"certARN"
+                                        }
 					}],
 					"DefaultActions": [{
 						"Type": "forward",
@@ -300,24 +319,29 @@
 						"Ref": "VpcId"
 					},
 					"Tags": [{
-						"Key": "NAME",
+						"Key": "Name",
 						"Value": "CSYE6225"
 					}]
 				}
 			},
 			"myDNSRecord": {
-				"Type": "AWS::Route53::RecordSetGroup",
+				"Type": "AWS::Route53::RecordSet",
 				"Properties": {
-					"HostedZoneName": {
-						"Ref": "HostedZoneName"
+					"HostedZoneId": {
+						"Ref": "hzid"
 					},
 					"Comment": "DNS name setting",
-					"RecordSets": [{
-						"Name": {
-							"Ref": "HostedZoneName"
+					"Name": {
+							"Ref": "hostedzone"
 						},
 						"Type": "A",
 						"AliasTarget": {
+                                                     "HostedZoneId":{  
+                                                        "Fn::GetAtt":[  
+                                                            "ElasticLoadBalancer",
+                                                            "CanonicalHostedZoneID"
+                                                                    ]
+                                                     },   
 							
 							"DNSName": {
 								"Fn::GetAtt": [
@@ -326,7 +350,6 @@
 								]
 							}
 						}
-					}]
 				}
 			},
 			"WebServerSecurityGroup": {
@@ -358,56 +381,13 @@
 							"IpProtocol": "tcp",
 							"FromPort": "8080",
 							"ToPort": "8080",
-							"SourceSecurityGroupId": {
-								"Fn::GetAtt": ["LoadBalancerSecurityGroup", "GroupId"]
-							}
+                                                        "CidrIp": "0.0.0.0/0"
 						}
 					],
 					"Tags": [{
-						"Key": "CSYE6225SG",
-						"Value": "new-stack-1-ec2"
-					}],
-					"VpcId": {
-						"Ref": "VpcId"
-					}
-				}
-			},
-			"LoadBalancerSecurityGroup": {
-				"Type": "AWS::EC2::SecurityGroup",
-				"Properties": {
-					"GroupDescription": "Enable SSH access via port 22 80 and 443",
-					"SecurityGroupIngress": [{
-							"IpProtocol": "tcp",
-							"FromPort": "22",
-							"ToPort": "22",
-							"CidrIp": "0.0.0.0/0"
-						},
-						{
-							"IpProtocol": "tcp",
-							"FromPort": "443",
-							"ToPort": "443",
-							"CidrIp": "0.0.0.0/0"
-						},
-						{
-							"IpProtocol": "tcp",
-							"FromPort": "80",
-							"ToPort": "80",
-							"CidrIp": "0.0.0.0/0"
-						},
-						{
-							"IpProtocol": "tcp",
-							"FromPort": "8080",
-							"ToPort": "8080",
-							"CidrIp": "0.0.0.0/0"
-						}
-					],
-					"Tags": [{
-						"Key": "CSTY6225LB-SG",
-						"Value": "new-stack-1-ec2"
-					}],
-					"VpcId": {
-						"Ref": "VpcId"
-					}
+						"Key": "Name",
+						"Value": "WebServerSecurityGroup"
+					}]
 				}
 			},
 			"DBEC2SecurityGroup": {
@@ -486,6 +466,58 @@
 					"PubliclyAccessible": "false",
 					"DBName": "csye6225"
 				}
-			}
-		}
-	}
+			},
+                       "CodeDeployServiceRole" : {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "ManagedPolicyArns" : ["arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"],
+              "AssumeRolePolicyDocument": {
+                "Version" : "2012-10-17",
+                "Statement": [ {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": [ "ec2.amazonaws.com", "codedeploy.amazonaws.com"]
+                  },
+                "Action": [ "sts:AssumeRole" ]
+                } ]
+              },
+          "RoleName": "CodeDeployServiceRole"
+          }
+        },
+    "CodeDeployApplication": {
+      "Type": "AWS::CodeDeploy::Application",
+      "Properties": {
+        "ApplicationName" : {"Ref" : "appname"}
+      }
+    },
+     "CodeDeployDeploymentGroup": {
+      "Type": "AWS::CodeDeploy::DeploymentGroup",
+      "Properties": {
+        "ApplicationName" : {"Ref" : "appname"},
+          "DeploymentStyle": {
+          "DeploymentType": "IN_PLACE",
+          "DeploymentOption": "WITHOUT_TRAFFIC_CONTROL"
+        },
+        "LoadBalancerInfo": {
+          "ElbInfoList": [
+            {
+              "Name": "ELB"
+            }
+          ]
+        },
+         "AutoScalingGroups": [
+          {
+            "Ref": "WebServerGroup"
+          }
+        ],
+        "Ec2TagFilters" : [{
+          "Key" : "Name",
+          "Value" : "CSYE6225",
+          "Type" : "KEY_AND_VALUE"
+        }],
+        "ServiceRoleArn" : {"Fn::GetAtt" : ["CodeDeployServiceRole", "Arn"]},
+        "DeploymentGroupName" : {"Ref" : "depname"}
+      }
+    }
+  }
+}
